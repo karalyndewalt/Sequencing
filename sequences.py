@@ -14,7 +14,13 @@ LINKAGES = {"o", "s",}
 class Sequence(object):
 
     look_ups = {0: MODIFIERS, 1: BASES, 2: SUGARS, 3: LINKAGES}
-    str_const = {0: "MODIFIER", 1: "BASE", 2: "SUGAR", 3: "LINKAGE"}
+    str_const = {0: "MODIFIER",
+                 1: "BASE",
+                 2: "SUGAR",
+                 3: "LINKAGE",
+                 4: "Final Character",
+                }
+
 
     def __init__(self, seq=None):
 
@@ -26,6 +32,7 @@ class Sequence(object):
         else:
             self.seq = None
 
+
     def _validate(self, seq):
         """Returns tuple (code, (pos, problem_char))
 
@@ -35,8 +42,11 @@ class Sequence(object):
         >>> new_seq._validate(seq)
         (-1, (-1, None))
 
-        >>> new_seq._validate("-Gdo-Gdx")
-        (2, (7, 'x'))
+        >>> new_seq._validate("-Gdo-Gdo")
+        (4, (7, 'o'))
+
+        >>> new_seq._validate("-Gdo-Go")
+        (-1, (-1, None))
 
         >>> new_seq._validate("xGdo-Gd")
         (0, (0, 'x'))
@@ -51,9 +61,14 @@ class Sequence(object):
         (3, (3, 'x'))
 
         """
+        # check for linkage at the end of sequence. Linkage not valid,
+        # but 'o' is a valid SUGAR and LINKAGE.
+        # if lst char 'o' must be preceded by BASE
+        # "-Go" -- valid
+        # "-Gdo" -- invalid
 
-        if seq[-1] not in self.look_ups[2]:
-            return (2, (len(seq)-1, seq[-1]))
+        if seq[-1] in self.look_ups[2] and seq[-2] not in self.look_ups[1]:
+            return (4, (len(seq)-1, seq[-1]))
 
         pos_code = 0
 
@@ -76,8 +91,8 @@ class Sequence(object):
         >>> new_seq._validtion_messages((-1, (-1, None)))
         'Validation complete, no errors found.'
 
-        >>> new_seq._validtion_messages((2, (7, 'x')))
-        'Error at seq pos: 7, x not a valid SUGAR.'
+        >>> new_seq._validtion_messages((4, (7, 'x')))
+        'Error at seq pos: 7, x not a valid Final Character.'
 
         >>> new_seq._validtion_messages((0, (0, 'x')))
         'Error at seq pos: 0, x not a valid MODIFIER.'
@@ -106,23 +121,6 @@ class Sequence(object):
             message = "Validation complete, no errors found."
 
         return message
-
-        # look_ups = {0: MODIFIERS, 1: BASES, 2: SUGARS, 3: LINKAGES}
-        # str_const = {0: "MODIFIER", 1: "BASE", 2: "SUGAR", 3: "LINKAGE"}
-        # pos_count = 0
-        #
-        # if seq[-1] not in look_ups[2]:
-        #     return "Error: Valid sequence must end in SUGAR."
-        #
-        # for pos in enumerate(seq):
-        #     char = pos[1]
-        #     if char not in look_ups[pos_count]:
-        #         message = "Error at seq pos: {pos}, {char} not a valid {const}."
-        #         return message.format(pos=pos[0], char=char, const=str_const[pos_count])
-        #     # move counter
-        #     pos_count = 0 if (pos_count >= 3) else (pos_count + 1)
-        #
-        # return  "Validation complete, no errors found."
 
 
 if __name__ == "__main__":
