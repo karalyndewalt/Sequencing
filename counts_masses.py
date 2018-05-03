@@ -7,9 +7,9 @@ function that converts your counts into a mass.
 """
 
 
-BASE_MASSES = {"o":1, "A": 2, "G": 3, "U": 4, "C":5, "d": 0, "r": 0, "-": 0}
+BASE_MASSES = {"o": 1, "A": 2, "G": 3, "U": 4, "C":5, "d": 0, "r": 0, "-": 0}
 
-ALT_BASE_MASSES = {"o":1,
+ALT_BASE_MASSES = {"o": 1,
                    "-Ad": 2, "-Ar": 2.5,
                    "-Gd": 3, "-Gr": 3.5,
                    "-Cd": 4, "-Cr": 4.5,

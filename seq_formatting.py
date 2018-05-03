@@ -36,6 +36,11 @@ def label_fomat(seq):
 
             out.append(base[1])
 
+    if stack:
+        out.append('[')
+        out.extend(stack)
+        out.append(']')
+
     return "".join(out)
 
 if __name__ == "__main__":
