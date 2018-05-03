@@ -1,0 +1,94 @@
+
+
+####TEST _validate ####
+>>> from sequences import Sequence
+
+>>> seq = "-Gdo-Gdo-Ado-Ado-Tdo-Gro-Gro-Cro-Uro-Uro-Uro-Ur"
+>>> new_seq = Sequence()
+
+>>> new_seq._validate(seq)
+(-1, (-1, None))
+
+>>> new_seq._validate("-Gdo-Gdo")
+(4, (7, 'o'))
+
+>>> new_seq._validate("xGdo-Gd")
+(0, (0, 'x'))
+
+>>> new_seq._validate("-Xdo-Gd")
+(1, (1, 'X'))
+
+>>> new_seq._validate("-Gdx-Gd")
+(3, (3, 'x'))
+
+>>> new_seq._validate("-Gxo-Gd")
+(2, (2, 'x'))
+
+####TEST _validation_messages ####
+
+>>> new_seq._validation_messages((-1, (-1, None)))
+'Validation complete, no errors found.'
+
+>>> new_seq._validation_messages((4, (7, 'x')))
+'Error at seq pos: 7, x not a valid Final Character.'
+
+>>> new_seq._validation_messages((0, (0, 'x')))
+'Error at seq pos: 0, x not a valid MODIFIER.'
+
+>>> new_seq._validation_messages((1, (1, 'X')))
+'Error at seq pos: 1, X not a valid BASE.'
+
+>>> new_seq._validation_messages((2, (2, 'x')))
+'Error at seq pos: 2, x not a valid SUGAR.'
+
+>>> new_seq._validation_messages((3, (3, 'x')))
+'Error at seq pos: 3, x not a valid LINKAGE.'
+
+
+####TEST  _get_counts ####
+>>> seq_d = "-Gdo-Gdo-Ado-Ado-Td"
+>>> new_seq_d = Sequence(seq_d)
+Validation complete, no errors found.
+>>> counts_d = new_seq_d._get_counts()
+>>> sorted(counts_d.items())
+[('-Ad', 2), ('-Gd', 2), ('-Td', 1), ('o', 4)]
+
+>>> seq_r = "-Gro-Gro-Cro-Uro-Uro-Uro-Ur"
+>>> new_seq_r = Sequence(seq_r)
+Validation complete, no errors found.
+>>> counts_r = new_seq_r._get_counts()
+>>> sorted(counts_r.items())
+[('-Cr', 1), ('-Gr', 2), ('-Ur', 4), ('o', 6)]
+
+>>> seq_combo = "-Gdo-Gdo-Ado-Ado-Tdo-Gro-Gro-Cro-Uro-Uro-Uro-Ur"
+>>> new_seq_combo = Sequence(seq_combo)
+Validation complete, no errors found.
+>>> counts_combo = new_seq_combo._get_counts()
+>>> sorted(counts_combo.items())
+[('-Ad', 2), ('-Cr', 1), ('-Gd', 2), ('-Gr', 2), ('-Td', 1), ('-Ur', 4), ('o', 11)]
+
+####TEST  _get_mass ####
+>>> short_seq = Sequence("-Gdo-Ado-Cdo-Td")
+Validation complete, no errors found.
+>>> short_seq._get_mass()
+17
+>>> short_seq.mass
+17
+
+>>> mass_r = Sequence("-Gro-Aro-Cro-Ur")
+Validation complete, no errors found.
+>>> mass_r._get_mass()
+20.0
+>>> mass_r.mass
+20.0
+
+>>> mass_combo = Sequence("-Gdo-Gdo-Ado-Ado-Tdo-Gro-Gro-Cro-Uro-Uro-Uro-Ur")
+Validation complete, no errors found.
+>>> mass_combo._get_mass()
+63.5
+>>> mass_combo.mass
+63.5
+
+
+>>> mass_combo.get_label()
+'[GGAAT]GGCUUUU'
