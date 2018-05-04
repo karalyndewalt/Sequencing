@@ -46,19 +46,19 @@ def validate(seq):
     """
 
     look_ups = {0: MODIFIERS, 1: BASES, 2: SUGARS, 3: LINKAGES}
-    str_const = {0: "MODIFIER", 1: "BASE", 2: "SUGAR", 3: "LINKAGE"}
-    pos_count = 0
+    str_constr = {0: "MODIFIER", 1: "BASE", 2: "SUGAR", 3: "LINKAGE"}
 
     if seq[-1] not in look_ups[2]:
         return "Error: Valid sequence must end in SUGAR."
 
-    for pos in enumerate(seq):
+    for pos, char in enumerate(seq):
+        pos_count = pos%4
         char = pos[1]
         if char not in look_ups[pos_count]:
-            message = "Error at seq pos: {pos}, {char} not a valid {const}."
-            return message.format(pos=pos[0], char=char, const=str_const[pos_count])
+            msg = "Error at seq pos: {pos}, {char} not a valid {constr}."
+            return msg.format(pos=pos, char=char, constr=str_constr[pos_count])
         # move counter
-        pos_count = 0 if (pos_count >= 3) else (pos_count + 1)
+        # pos_count = 0 if (pos_count >= 3) else (pos_count + 1)
 
     return  "Validation complete, no errors found."
 

@@ -1,11 +1,13 @@
 
-
+#######################
 ####TEST _validate ####
+########################
+
 >>> from sequences import Sequence
 
->>> seq = "-Gdo-Gdo-Ado-Ado-Tdo-Gro-Gro-Cro-Uro-Uro-Uro-Ur"
 >>> new_seq = Sequence()
 
+>>> seq = "-Gdo-Gdo-Ado-Ado-Udo-Gro-Gro-Cro-Uro-Uro-Uro-Ur"
 >>> new_seq._validate(seq)
 (-1, (-1, None))
 
@@ -24,13 +26,15 @@
 >>> new_seq._validate("-Gxo-Gd")
 (2, (2, 'x'))
 
+##################################
 ####TEST _validation_messages ####
+##################################
 
 >>> new_seq._validation_messages((-1, (-1, None)))
 'Validation complete, no errors found.'
 
 >>> new_seq._validation_messages((4, (7, 'x')))
-'Error at seq pos: 7, x not a valid Final Character.'
+'Error at seq pos: 7, x not a valid Final Character. No linkage at end of sequence.'
 
 >>> new_seq._validation_messages((0, (0, 'x')))
 'Error at seq pos: 0, x not a valid MODIFIER.'
@@ -44,8 +48,10 @@
 >>> new_seq._validation_messages((3, (3, 'x')))
 'Error at seq pos: 3, x not a valid LINKAGE.'
 
-
+##########################
 ####TEST  _get_counts ####
+##########################
+
 >>> seq_d = "-Gdo-Gdo-Ado-Ado-Td"
 >>> new_seq_d = Sequence(seq_d)
 Validation complete, no errors found.
@@ -67,7 +73,10 @@ Validation complete, no errors found.
 >>> sorted(counts_combo.items())
 [('-Ad', 2), ('-Cr', 1), ('-Gd', 2), ('-Gr', 2), ('-Td', 1), ('-Ur', 4), ('o', 11)]
 
+########################
 ####TEST  _get_mass ####
+########################
+
 >>> short_seq = Sequence("-Gdo-Ado-Cdo-Td")
 Validation complete, no errors found.
 >>> short_seq._get_mass()
@@ -89,6 +98,16 @@ Validation complete, no errors found.
 >>> mass_combo.mass
 63.5
 
+########################
+####TEST  get_label ####
+########################
 
 >>> mass_combo.get_label()
 '[GGAAT]GGCUUUU'
+
+#test stack is cleared (for sequence ending in DNA)
+>>> alt_combo = Sequence("-Ado-Ado-Tdo-Gro-Gro-Cro-Uro-Uro-Uro-Uro-Gdo-Gd")
+Validation complete, no errors found.
+
+>>> alt_combo.get_label()
+'[AAT]GGCUUUU[GG]'

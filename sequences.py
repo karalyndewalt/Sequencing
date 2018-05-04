@@ -28,7 +28,7 @@ class Sequence(object):
                  1: "BASE",
                  2: "SUGAR",
                  3: "LINKAGE",
-                 4: "Final Character",
+                 4: "Final Character. No linkage at end of sequence",
                 }
 
 
@@ -51,11 +51,14 @@ class Sequence(object):
     def _validate(self, seq):
         """Returns tuple (code, (pos, problem_char))
 
-        >>> seq = "-Gdo-Gdo-Ado-Ado-Udo-Gro-Gro-Cro-Uro-Uro-Uro-Ur"
         >>> new_seq = Sequence()
 
+        >>> seq = "-Gdo-Gdo-Ado-Ado-Udo-Gro-Gro-Cro-Uro-Uro-Uro-Ur"
         >>> new_seq._validate(seq)
         (-1, (-1, None))
+
+        >>> new_seq._validate("-Gdo-Gdx")
+        (4, (7, 'x'))
 
         >>> new_seq._validate("-Gdo-Gdo")
         (4, (7, 'o'))
@@ -78,28 +81,28 @@ class Sequence(object):
         """
         # check for linkage at the end of sequence. Linkage not valid,
         # but 'o' is a valid SUGAR and LINKAGE.
-        # if lst char 'o' must be preceded by BASE
+        # if lst char is 'o' it must be preceded by a BASE
         # "-Go" -- valid
         # "-Gdo" -- invalid
 
-        if seq[-1] in self.look_ups[2] and seq[-2] not in self.look_ups[1]:
+        # 'smartish' check - is Sugar last char and is penultimate char a Base
+        # if seq[-1] in self.look_ups[2] and seq[-2] not in self.look_ups[1]:
+        #     return (4, (len(seq)-1, seq[-1]))
+
+        # 'dumb' check - is sequence too long.
+        if len(seq) % 4 != 3:
             return (4, (len(seq)-1, seq[-1]))
 
-        pos_code = 0
-
-        for pair in enumerate(seq):
-            pos, char = pair
-
+        for pos, char in enumerate(seq):
+            pos_code = pos%4
             if char not in self.look_ups[pos_code]:
                 return (pos_code, (pos, char))
-
-            pos_code = 0 if (pos_code >= 3) else (pos_code + 1)
 
         return (-1, (-1, None))
 
 
     def _validation_messages(self, codes):
-        """Returns validity of seq, with helpful errors
+        """Returns validity of seq, with helpful error codes.
 
         >>> new_seq = Sequence()
 
@@ -107,7 +110,7 @@ class Sequence(object):
         'Validation complete, no errors found.'
 
         >>> new_seq._validation_messages((4, (7, 'x')))
-        'Error at seq pos: 7, x not a valid Final Character.'
+        'Error at seq pos: 7, x not a valid Final Character. No linkage at end of sequence.'
 
         >>> new_seq._validation_messages((0, (0, 'x')))
         'Error at seq pos: 0, x not a valid MODIFIER.'
@@ -122,20 +125,17 @@ class Sequence(object):
         'Error at seq pos: 3, x not a valid LINKAGE.'
 
         """
-        # validity = self._check_seq(seq)
 
         error_code, pos_char = codes
         pos, char = pos_char
 
         if error_code >= 0:
             temp = "Error at seq pos: {pos}, {char} not a valid {const}."
-            message = temp.format(pos=pos,
-                                  char=char,
-                                  const=self.str_const[error_code])
-        else:
-            message = "Validation complete, no errors found."
+            return temp.format(pos=pos,
+                               char=char,
+                               const=self.str_const[error_code])
 
-        return message
+        return "Validation complete, no errors found."
 
 
     def _get_counts(self):
@@ -144,13 +144,19 @@ class Sequence(object):
         """
 
         seq_counts = {}
-        bases = self.seq.split('o')
 
-        seq_counts['o'] = len(bases) - 1
+        length = len(self.seq)
 
-        for base in bases:
+        for idx in range(0, length, 4):
+
+            base = self.seq[idx: idx + 3]
             seq_counts.setdefault(base, 0)
             seq_counts[base] += 1
+
+            if (idx + 4) < length:
+                linkage = self.seq[idx + 3]
+                seq_counts.setdefault(linkage, 0)
+                seq_counts[linkage] += 1
 
         return seq_counts
 
@@ -160,8 +166,8 @@ class Sequence(object):
 
         """
 
-        # counts = count_seq_preserve(seq)
         mass = 0
+
         for item in self.counts.iteritems():
             base, count = item
             base_mass = ALT_BASE_MASSES[base] * count
@@ -175,9 +181,12 @@ class Sequence(object):
         """
         out = []
         stack = []
-        tokens = self.seq.split('o')
 
-        for base in tokens:
+        length = len(self.seq)
+
+        for idx in range(0, length, 4):
+            base = self.seq[idx: idx + 3]
+
             if base[2] == 'd':
                 stack.append(base[1])
             # rna found
